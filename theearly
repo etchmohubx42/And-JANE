@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
---  ETCHMO.HUB v2.0 — BLOOD RED EDITION
---  Target Lock System + Blood Red Theme + Square UI
+--  ETCHMO.HUB v2.0 — BLOOD RED EDITION — FIXED & OPTIMIZED
+--  Target Lock System + Blood Red Theme + Square UI + Floating Icons
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local success, err = pcall(function()
@@ -199,12 +199,14 @@ local State = {
         FOVEnabled = false, FOVVisible = false, FOVScanRange = 250, FOVIgnoreModes = "None",
         FOVType = "Circle", FOVCircleRadius = 250, FOVBoxDimensions = 250, FOVMode = "Center", FOVModeVisible = false,
         FOV2DX = 500, FOV2DY = 500, FOV3DX = 500, FOV3DY = 500, FOV3DZ = 500, FOV3DPrediction = 0.165,
+        TargetLockOnly = false,
     },
     Aimbot = {
         Enabled = false, Distance = 1000, Smoothness = 0.1, EasingStyle = "Linear", EasingDirection = "In",
         HitPart = "Head", ClosestPointMode = "Disabled", ClosestPointScale = 0.5,
         PredictionX = 0.165, PredictionY = 0.165, PredictionZ = 0.165,
         ClampYEnabled = false, ClampYDynamic = false, ClampYValue = 45,
+        TargetLockOnly = false,
     },
     TriggerBot = {
         Enabled = false, Distance = 1000, Cooldown = 0.1,
@@ -212,13 +214,14 @@ local State = {
         ActivationMode = "Hold", ActivationType = "Mouse",
         FOVEnabled = false, FOVVisible = false, FOVScanRange = 250,
         FOV2DX = 500, FOV2DY = 500, FOV2DPrediction = 0.165,
+        TargetLockOnly = false,
     },
     FOV = {
         Enabled = false, Visible = false, ScanRange = 250, IgnoreModes = "None",
         Type = "Circle", CircleRadius = 250, BoxDimensions = 250, Mode = "Center", ModeVisible = false,
         X2D = 500, Y2D = 500, X3D = 500, Y3D = 500, Z3D = 500, Prediction3D = 0.165,
     },
-    Hitbox = { Enabled = false, Size = 5, TargetModeOnly = false, Transparency = 0.5, Visualize = false },
+    Hitbox = { Enabled = false, Size = 5, TargetModeOnly = false, Transparency = 0.5, Visualize = false, TargetLockOnly = false },
     Rage = {
         Enabled = false, Mode = "Legit", FullDamage = false,
         WeaponDistances = { ["Double-Barrel"] = 50, ["Tactical Shotgun"] = 50, ["Revolver"] = 50, ["Silencer"] = 50,
@@ -254,6 +257,7 @@ local State = {
     Animations = { Enabled = false, AnimationName = "", LoadedAnimation = nil, AnimationTrack = nil, CurrentAnimationId = nil },
     Extra = {
         TriggerHitbox = false, TriggerHitboxAuto = false, TriggerHitboxDistance = 1000, TriggerHitboxCooldown = 0.1,
+        TargetLockOnly = false,
         AutoArmor = false, AutoArmorHealth = 50, AutoReload = false, AutoReloadAmmo = 5,
         FastEquip = false, AntiAim = false, AntiAimMode = "Jitter", AntiAimSpeed = 10,
         AutoFarm = false, AutoFarmMode = "Cash", AutoGrab = false, AutoGrabDistance = 10,
@@ -261,13 +265,12 @@ local State = {
     },
     Whitelist = { Enabled = false, FriendsOnly = false, CrewOnly = false, Players = {} },
     Teleport = { Enabled = false, AutoTeleport = false, TeleportDistance = 5, SelectedPlayer = nil },
-    -- TARGET LOCK SYSTEM
     TargetLock = {
         Enabled = false,
         SelectedPlayer = nil,
         SelectedPlayerName = "",
         ESPNameEnabled = false,
-        FeaturesPerTarget = false, -- When ON, features only work on selected target
+        FeaturesPerTarget = false,
     },
 }
 
@@ -299,7 +302,7 @@ local Shadow = CreateInstance("ImageLabel", {
     SliceCenter = Rect.new(10, 10, 118, 118),
 })
 
--- BIGGER MAIN FRAME - 600x480 (was 540x400)
+-- BIGGER MAIN FRAME - 600x480
 local MainFrame = CreateInstance("Frame", {
     Name = "MainFrame",
     Parent = ScreenGui,
@@ -308,8 +311,9 @@ local MainFrame = CreateInstance("Frame", {
     Position = UDim2.new(0.5, -300, 0.5, -240),
     Size = UDim2.new(0, 600, 0, 480),
     ClipsDescendants = true,
+    Visible = true,
 })
--- NO CORNER - SQUARE UI
+
 local BorderGlow = CreateInstance("UIStroke", {
     Parent = MainFrame,
     Color = Colors.Accent,
@@ -322,9 +326,8 @@ local Header = CreateInstance("Frame", {
     Parent = MainFrame,
     BackgroundColor3 = Colors.SecondaryBg,
     BorderSizePixel = 0,
-    Size = UDim2.new(1, 0, 0, 40),
+    Size = UDim2.new(1, 0, 0, 50),
 })
--- NO CORNER - SQUARE
 
 local HeaderBottomFix = CreateInstance("Frame", {
     Parent = Header,
@@ -334,24 +337,25 @@ local HeaderBottomFix = CreateInstance("Frame", {
     Size = UDim2.new(1, 0, 0.5, 0),
 })
 
-local TitleLabel = CreateInstance("TextLabel", {
-    Name = "Title",
+-- ═══════════════════════════════════════════════════════════════════════════════
+--  TITLE IMAGE (Asset 74089212749870) — REPLACES TEXT TITLE
+-- ═══════════════════════════════════════════════════════════════════════════════
+local TitleImage = CreateInstance("ImageLabel", {
+    Name = "TitleImage",
     Parent = Header,
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 16, 0, 0),
-    Size = UDim2.new(0, 250, 1, 0),
-    Font = Fonts.Title,
-    Text = "ETCHMO.HUB",
-    TextColor3 = Colors.Accent,
-    TextSize = 22,
-    TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 12, 0, 4),
+    Size = UDim2.new(0, 200, 0, 40),
+    Image = "rbxassetid://74089212749870",
+    ImageColor3 = Colors.White,
+    ScaleType = Enum.ScaleType.Fit,
 })
 
 local SubtitleLabel = CreateInstance("TextLabel", {
     Name = "Subtitle",
     Parent = Header,
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 16, 0, 22),
+    Position = UDim2.new(0, 12, 0, 32),
     Size = UDim2.new(0, 250, 0, 16),
     Font = Fonts.Labels,
     Text = "v2.0 BLOOD | " .. Executor.Name,
@@ -364,7 +368,7 @@ local CloseBtn = CreateInstance("TextButton", {
     Name = "CloseBtn",
     Parent = Header,
     BackgroundTransparency = 1,
-    Position = UDim2.new(1, -36, 0, 8),
+    Position = UDim2.new(1, -36, 0, 12),
     Size = UDim2.new(0, 26, 0, 26),
     Font = Fonts.Tabs,
     Text = "X",
@@ -386,7 +390,7 @@ local MinBtn = CreateInstance("TextButton", {
     Name = "MinBtn",
     Parent = Header,
     BackgroundTransparency = 1,
-    Position = UDim2.new(1, -64, 0, 8),
+    Position = UDim2.new(1, -64, 0, 12),
     Size = UDim2.new(0, 26, 0, 26),
     Font = Fonts.Tabs,
     Text = "-",
@@ -400,13 +404,17 @@ end)
 MinBtn.MouseLeave:Connect(function()
     pcall(function() TweenService:Create(MinBtn, TweenInfo.new(0.15), {TextColor3 = Colors.SecondaryText}):Play() end)
 end)
+MinBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    Shadow.Visible = false
+end)
 
 local TabContainer = CreateInstance("Frame", {
     Name = "TabContainer",
     Parent = MainFrame,
     BackgroundColor3 = Colors.TertiaryBg,
     BorderSizePixel = 0,
-    Position = UDim2.new(0, 0, 0, 40),
+    Position = UDim2.new(0, 0, 0, 50),
     Size = UDim2.new(1, 0, 0, 32),
 })
 
@@ -428,31 +436,29 @@ local ContentFrame = CreateInstance("Frame", {
     Name = "ContentFrame",
     Parent = MainFrame,
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 0, 0, 72),
-    Size = UDim2.new(1, 0, 1, -72),
+    Position = UDim2.new(0, 0, 0, 82),
+    Size = UDim2.new(1, 0, 1, -82),
     ClipsDescendants = true,
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  TARGET LOCK FLOATING BUTTON
+--  FLOATING TOGGLE BUTTON — TARGET LOCK (Asset 123454399857506)
 -- ═══════════════════════════════════════════════════════════════════════════════
-local TargetLockBtn = CreateInstance("TextButton", {
+local TargetLockBtn = CreateInstance("ImageButton", {
     Name = "TargetLockBtn",
     Parent = ScreenGui,
     BackgroundColor3 = Colors.DarkBlood,
+    BackgroundTransparency = 0.1,
     BorderSizePixel = 2,
     BorderColor3 = Colors.Accent,
     Position = UDim2.new(0, 20, 0.5, -40),
-    Size = UDim2.new(0, 80, 0, 80),
-    Font = Fonts.Tabs,
-    Text = "TARGET
-LOCK",
-    TextColor3 = Colors.Accent,
-    TextSize = 11,
+    Size = UDim2.new(0, 70, 0, 70),
+    Image = "rbxassetid://123454399857506",
+    ImageColor3 = Colors.Accent,
+    ScaleType = Enum.ScaleType.Fit,
     AutoButtonColor = false,
     Visible = true,
 })
--- SQUARE - NO CORNER
 
 local TargetLockIndicator = CreateInstance("Frame", {
     Name = "Indicator",
@@ -471,23 +477,109 @@ local TargetNameLabel = CreateInstance("TextLabel", {
     BackgroundTransparency = 0.2,
     BorderSizePixel = 1,
     BorderColor3 = Colors.Accent,
-    Position = UDim2.new(0, 20, 0.5, 45),
-    Size = UDim2.new(0, 80, 0, 24),
+    Position = UDim2.new(0, 20, 0.5, 35),
+    Size = UDim2.new(0, 70, 0, 20),
     Font = Fonts.Labels,
     Text = "",
     TextColor3 = Colors.Accent,
-    TextSize = 10,
+    TextSize = 9,
     TextWrapped = true,
     Visible = false,
 })
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+--  FLOATING TOGGLE BUTTON — OPEN/CLOSE UI (Asset 123454399857506)
+-- ═══════════════════════════════════════════════════════════════════════════════
+local UIToggleBtn = CreateInstance("ImageButton", {
+    Name = "UIToggleBtn",
+    Parent = ScreenGui,
+    BackgroundColor3 = Colors.DarkBlood,
+    BackgroundTransparency = 0.1,
+    BorderSizePixel = 2,
+    BorderColor3 = Colors.Accent,
+    Position = UDim2.new(0, 20, 0.5, 45),
+    Size = UDim2.new(0, 70, 0, 70),
+    Image = "rbxassetid://123454399857506",
+    ImageColor3 = Colors.White,
+    ScaleType = Enum.ScaleType.Fit,
+    AutoButtonColor = false,
+    Visible = true,
+})
+
+local UIToggleIndicator = CreateInstance("Frame", {
+    Name = "Indicator",
+    Parent = UIToggleBtn,
+    BackgroundColor3 = Colors.Green,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 0, 1, -3),
+    Size = UDim2.new(1, 0, 0, 3),
+    Visible = true,
+})
+
+local UIToggleLabel = CreateInstance("TextLabel", {
+    Name = "ToggleLabel",
+    Parent = ScreenGui,
+    BackgroundColor3 = Colors.DarkBlood,
+    BackgroundTransparency = 0.2,
+    BorderSizePixel = 1,
+    BorderColor3 = Colors.Accent,
+    Position = UDim2.new(0, 20, 0.5, 120),
+    Size = UDim2.new(0, 70, 0, 18),
+    Font = Fonts.Labels,
+    Text = "UI: ON",
+    TextColor3 = Colors.Green,
+    TextSize = 9,
+    TextWrapped = true,
+    Visible = true,
+})
+
+-- UI Toggle Logic
+UIToggleBtn.MouseButton1Click:Connect(function()
+    local isVisible = MainFrame.Visible
+    MainFrame.Visible = not isVisible
+    Shadow.Visible = not isVisible
+    UIToggleIndicator.BackgroundColor3 = not isVisible and Colors.Green or Colors.Red
+    UIToggleLabel.Text = not isVisible and "UI: ON" or "UI: OFF"
+    UIToggleLabel.TextColor3 = not isVisible and Colors.Green or Colors.Red
+end)
+
+-- Dragging for UI Toggle
+local uiDragging = false
+local uiDragStart = nil
+local uiStartPos = nil
+
+UIToggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        uiDragging = true
+        uiDragStart = input.Position
+        uiStartPos = UIToggleBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if uiDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - uiDragStart
+        pcall(function()
+            local newPos = UDim2.new(uiStartPos.X.Scale, uiStartPos.X.Offset + delta.X, uiStartPos.Y.Scale, uiStartPos.Y.Offset + delta.Y)
+            UIToggleBtn.Position = newPos
+            UIToggleLabel.Position = UDim2.new(newPos.X.Scale, newPos.X.Offset, newPos.Y.Scale, newPos.Y.Offset + 75)
+        end)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        uiDragging = false
+    end
+end)
 
 -- Target Lock Logic
 local function GetPlayerUnderMouse()
     local mousePos = UserInputService:GetMouseLocation()
     local ray = Camera:ViewportPointToRay(mousePos.X, mousePos.Y)
-    local result = workspace:FindPartOnRayWithIgnoreList(Ray.new(ray.Origin, ray.Direction * 1000), {LocalPlayer.Character})
+    local result = workspace:Raycast(ray.Origin, ray.Direction * 1000)
     if result then
-        local model = result:FindFirstAncestorOfClass("Model")
+        local model = result.Instance:FindFirstAncestorOfClass("Model")
         if model then
             for _, plr in ipairs(Players:GetPlayers()) do
                 if plr.Character == model and plr ~= LocalPlayer then
@@ -503,49 +595,69 @@ TargetLockBtn.MouseButton1Click:Connect(function()
     local target = GetPlayerUnderMouse()
     if target then
         if State.TargetLock.SelectedPlayer == target then
-            -- Deselect
             State.TargetLock.SelectedPlayer = nil
             State.TargetLock.SelectedPlayerName = ""
             State.TargetLock.Enabled = false
             TargetLockIndicator.Visible = false
             TargetNameLabel.Visible = false
-            TargetLockBtn.Text = "TARGET
-LOCK"
-            TargetLockBtn.TextColor3 = Colors.Accent
+            TargetLockBtn.ImageColor3 = Colors.Accent
         else
-            -- Select new target
             State.TargetLock.SelectedPlayer = target
             State.TargetLock.SelectedPlayerName = "@" .. target.Name
             State.TargetLock.Enabled = true
             TargetLockIndicator.Visible = true
             TargetNameLabel.Text = "@" .. target.Name
             TargetNameLabel.Visible = true
-            TargetLockBtn.Text = "LOCKED
-@" .. target.Name
-            TargetLockBtn.TextColor3 = Colors.Red
+            TargetLockBtn.ImageColor3 = Colors.Red
         end
     else
-        -- No target under mouse, toggle off if on
         if State.TargetLock.Enabled then
             State.TargetLock.SelectedPlayer = nil
             State.TargetLock.SelectedPlayerName = ""
             State.TargetLock.Enabled = false
             TargetLockIndicator.Visible = false
             TargetNameLabel.Visible = false
-            TargetLockBtn.Text = "TARGET
-LOCK"
-            TargetLockBtn.TextColor3 = Colors.Accent
+            TargetLockBtn.ImageColor3 = Colors.Accent
         end
     end
 end)
 
--- Target Lock ESP - Blood Red Name
+-- Dragging for Target Lock
+local tlDragging = false
+local tlDragStart = nil
+local tlStartPos = nil
+
+TargetLockBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tlDragging = true
+        tlDragStart = input.Position
+        tlStartPos = TargetLockBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if tlDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - tlDragStart
+        pcall(function()
+            local newPos = UDim2.new(tlStartPos.X.Scale, tlStartPos.X.Offset + delta.X, tlStartPos.Y.Scale, tlStartPos.Y.Offset + delta.Y)
+            TargetLockBtn.Position = newPos
+            TargetNameLabel.Position = UDim2.new(newPos.X.Scale, newPos.X.Offset, newPos.Y.Scale, newPos.Y.Offset + 75)
+        end)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tlDragging = false
+    end
+end)
+
+-- Target Lock ESP
 local TargetESPObjects = {}
 
 local function CreateTargetESP(plr)
     if TargetESPObjects[plr] then return end
     local espData = {}
-
     if Executor.HasDrawing then
         espData.Name = Drawing.new("Text")
         espData.Name.Visible = false
@@ -554,7 +666,7 @@ local function CreateTargetESP(plr)
         espData.Name.Center = true
         espData.Name.Outline = true
         espData.Name.OutlineColor = Colors.Black
-        espData.Name.Font = 2 -- Bold
+        espData.Name.Font = 2
     end
     TargetESPObjects[plr] = espData
 end
@@ -567,36 +679,6 @@ local function RemoveTargetESP(plr)
         TargetESPObjects[plr] = nil
     end
 end
-
-RunService.RenderStepped:Connect(function()
-    -- Only show ESP for locked target
-    if State.TargetLock.Enabled and State.TargetLock.SelectedPlayer and State.TargetLock.SelectedPlayer.Character then
-        local plr = State.TargetLock.SelectedPlayer
-        local char = plr.Character
-        local head = char:FindFirstChild("Head")
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-
-        if head and hrp and Executor.HasDrawing then
-            CreateTargetESP(plr)
-            local espData = TargetESPObjects[plr]
-            local pos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1.2, 0))
-
-            if onScreen then
-                espData.Name.Visible = true
-                espData.Name.Position = Vector2.new(pos.X, pos.Y)
-                espData.Name.Text = "@" .. plr.Name .. " [LOCKED]"
-                espData.Name.Color = Colors.BloodRed
-            else
-                espData.Name.Visible = false
-            end
-        end
-    else
-        -- Clear all target ESP
-        for plr, _ in pairs(TargetESPObjects) do
-            RemoveTargetESP(plr)
-        end
-    end
-end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 --  UI COMPONENT BUILDERS — SQUARE, BLOOD RED
@@ -634,7 +716,6 @@ local function CreateToggle(parent, text, default, callback, yPos)
         Position = UDim2.new(1, -48, 0.5, -9),
         Size = UDim2.new(0, 40, 0, 18),
     })
-    -- SQUARE
 
     local toggleKnob = CreateInstance("Frame", {
         Name = "Knob",
@@ -644,7 +725,6 @@ local function CreateToggle(parent, text, default, callback, yPos)
         Position = UDim2.new(0, 2, 0.5, -7),
         Size = UDim2.new(0, 14, 0, 14),
     })
-    -- SQUARE
 
     local isOn = default or false
     local function UpdateToggle(on)
@@ -704,13 +784,11 @@ local function CreateSlider(parent, text, min, max, default, decimals, callback,
         Position = UDim2.new(1, -70, 0, 0), Size = UDim2.new(0, 60, 0, 20),
         Font = Fonts.Values, Text = FormatNumber(default), TextColor3 = Colors.Accent, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Center, ClearTextOnFocus = false,
     })
-    -- SQUARE
 
     local track = CreateInstance("Frame", {
         Name = "Track", Parent = container, BackgroundColor3 = Colors.SliderTrack, BorderSizePixel = 0,
         Position = UDim2.new(0, 0, 0, 28), Size = UDim2.new(1, 0, 0, 5),
     })
-    -- SQUARE
 
     local fill = CreateInstance("Frame", {
         Name = "Fill", Parent = track, BackgroundColor3 = Colors.Accent, BorderSizePixel = 0,
@@ -721,7 +799,6 @@ local function CreateSlider(parent, text, min, max, default, decimals, callback,
         Name = "Knob", Parent = track, BackgroundColor3 = Colors.Accent, BorderSizePixel = 0,
         Position = UDim2.new((default - min) / math.max(max - min, 0.001), -7, 0.5, -7), Size = UDim2.new(0, 14, 0, 14),
     })
-    -- SQUARE
 
     local currentValue = default
     local dragging = false
@@ -792,7 +869,6 @@ local function CreateDropdown(parent, text, options, default, callback, yPos)
         Position = UDim2.new(1, -120, 0.5, -11), Size = UDim2.new(0, 110, 0, 22),
         Font = Fonts.Labels, Text = default or options[1], TextColor3 = Colors.PrimaryText, TextSize = 12, AutoButtonColor = false,
     })
-    -- SQUARE
 
     local arrow = CreateInstance("ImageLabel", {
         Name = "Arrow", Parent = dropdownBtn, BackgroundTransparency = 1,
@@ -808,7 +884,6 @@ local function CreateDropdown(parent, text, options, default, callback, yPos)
         Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(0, 110, 0, 0),
         ClipsDescendants = true, ZIndex = 100, Visible = false,
     })
-    -- SQUARE
     CreateInstance("UIListLayout", {Parent = dropdownList, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 2)})
 
     for i, opt in ipairs(options) do
@@ -878,7 +953,6 @@ local function CreateKeybind(parent, text, defaultKey, callback, yPos)
         Position = UDim2.new(1, -70, 0.5, -11), Size = UDim2.new(0, 60, 0, 22),
         Font = Fonts.Keybinds, Text = defaultKey and defaultKey.Name or "N/A", TextColor3 = Colors.SecondaryText, TextSize = 12, AutoButtonColor = false,
     })
-    -- SQUARE
 
     local listening = false
     if keyBtn then
@@ -920,7 +994,6 @@ local function CreateColorPicker(parent, text, defaultColor, callback, yPos)
         Name = "ColorBtn", Parent = container, BackgroundColor3 = defaultColor or Colors.White, BorderSizePixel = 0,
         Position = UDim2.new(1, -36, 0.5, -11), Size = UDim2.new(0, 28, 0, 22), Text = "", AutoButtonColor = false,
     })
-    -- SQUARE
     CreateInstance("UIStroke", {Parent = colorBtn, Color = Colors.Border, Thickness = 1})
 
     local colors = {Colors.Accent, Colors.White, Colors.Black, Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 128, 0)}
@@ -962,7 +1035,6 @@ local function CreateButton(parent, text, callback, yPos)
         Position = UDim2.new(0, 14, 0, yPos), Size = UDim2.new(1, -28, 0, 30),
         Font = Fonts.Labels, Text = text, TextColor3 = Colors.Black, TextSize = 13, AutoButtonColor = false,
     })
-    -- SQUARE
 
     btn.MouseEnter:Connect(function()
         pcall(function() TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Colors.AccentLight}):Play() end)
@@ -998,7 +1070,6 @@ local function CreateTextInput(parent, text, default, callback, yPos)
         TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false,
         PlaceholderText = "Enter text...", PlaceholderColor3 = Colors.SecondaryText,
     })
-    -- SQUARE
     CreateInstance("UIPadding", {Parent = inputBox, PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10)})
 
     if inputBox then
@@ -1107,7 +1178,7 @@ local function BuildTab(tabName, controls)
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 1: SILENT AIM
+--  ALL 15 TABS
 -- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Silent", {
     {type="toggle", text="Enabled", default=false, callback=function(v) State.SilentAim.Enabled=v; UpdateFeatureStatus("silent-aim",v) end},
@@ -1148,9 +1219,6 @@ BuildTab("Silent", {
     {type="slider", text="3D Prediction", min=0, max=0.5, default=0.165, decimals=3, callback=function(v) State.SilentAim.FOV3DPrediction=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 2: AIMBOT
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Aimbot", {
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Aimbot.Enabled=v; UpdateFeatureStatus("aimbot",v) end},
     {type="toggle", text="Target Lock Only", default=false, callback=function(v) State.Aimbot.TargetLockOnly=v end},
@@ -1173,9 +1241,6 @@ BuildTab("Aimbot", {
     {type="slider", text="Value", min=0, max=90, default=45, decimals=0, callback=function(v) State.Aimbot.ClampYValue=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 3: TRIGGER BOT
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Trigger", {
     {type="toggle", text="Enabled", default=false, callback=function(v) State.TriggerBot.Enabled=v; UpdateFeatureStatus("trigger-bot",v) end},
     {type="toggle", text="Target Lock Only", default=false, callback=function(v) State.TriggerBot.TargetLockOnly=v end},
@@ -1197,9 +1262,6 @@ BuildTab("Trigger", {
     {type="slider", text="2D Prediction", min=0, max=0.5, default=0.165, decimals=3, callback=function(v) State.TriggerBot.FOV2DPrediction=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 4: FOV
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("FOV", {
     {type="toggle", text="Enabled", default=false, callback=function(v) State.FOV.Enabled=v end},
     {type="toggle", text="Visible", default=false, callback=function(v) State.FOV.Visible=v end},
@@ -1220,9 +1282,6 @@ BuildTab("FOV", {
     {type="slider", text="Prediction", min=0, max=0.5, default=0.165, decimals=3, callback=function(v) State.FOV.Prediction3D=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 5: HITBOX + RAGE
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Hitbox", {
     {type="header", text="HITBOX EXPANDER"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Hitbox.Enabled=v; UpdateFeatureStatus("hitbox-expander",v) end},
@@ -1254,9 +1313,6 @@ BuildTab("Hitbox", {
     {type="slider", text="Drum Shotgun", min=0, max=100, default=50, decimals=0, callback=function(v) State.Rage.WeaponDistances["Drum Shotgun"]=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 6: MISC
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Misc", {
     {type="header", text="PLAYER MODIFICATIONS"},
     {type="toggle", text="Anti Fall", default=false, callback=function(v) State.PlayerMods.AntiFall=v; UpdateFeatureStatus("anti-fall",v) end},
@@ -1302,9 +1358,6 @@ BuildTab("Misc", {
     {type="keybind", text="WalkSpeed", default=Enum.KeyCode.LeftShift, callback=function(v) State.Keybinds.WalkSpeed=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 7: VISUAL
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Visual", {
     {type="header", text="ESP SETTINGS"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.ESP.Enabled=v; UpdateFeatureStatus("esp",v) end},
@@ -1324,9 +1377,6 @@ BuildTab("Visual", {
     {type="slider", text="Limit Value", min=0, max=2000, default=0, decimals=0, callback=function(v) State.Visual.LimitDistanceValue=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 8: WHITELIST
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Whitelist", {
     {type="header", text="WHITELIST SETTINGS"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Whitelist.Enabled=v; UpdateFeatureStatus("whitelist",v) end},
@@ -1353,9 +1403,6 @@ BuildTab("Whitelist", {
     end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 9: TELEPORT
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Teleport", {
     {type="header", text="TELEPORT SETTINGS"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Teleport.Enabled=v; UpdateFeatureStatus("teleport",v) end},
@@ -1406,9 +1453,6 @@ BuildTab("Teleport", {
     end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 10: ANTI DETECTION
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("AntiDet", {
     {type="header", text="ANTI DETECTION"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.AntiDetection.Enabled=v; UpdateFeatureStatus("anti-detection",v) end},
@@ -1427,9 +1471,6 @@ BuildTab("AntiDet", {
     {type="slider", text="Position Offset", min=0, max=1000, default=0, decimals=0, callback=function(v) State.AntiDetection.PositionOffset=v end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 11: FAKE USER
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("FakeUser", {
     {type="header", text="FAKE USER SETTINGS"},
     {type="toggle", text="Enabled", default=false, callback=function(v)
@@ -1465,9 +1506,6 @@ BuildTab("FakeUser", {
     end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 12: CHAR
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Char", {
     {type="header", text="CHARACTER SKIN"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Char.Enabled=v; UpdateFeatureStatus("char-skin",v) end},
@@ -1518,9 +1556,6 @@ BuildTab("Char", {
     end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 13: ANIMATIONS
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Animations", {
     {type="header", text="ANIMATION LOADER"},
     {type="toggle", text="Enabled", default=false, callback=function(v) State.Animations.Enabled=v; UpdateFeatureStatus("animations",v) end},
@@ -1532,6 +1567,8 @@ BuildTab("Animations", {
                 if not char then return end
                 local humanoid = char:FindFirstChildOfClass("Humanoid")
                 if not humanoid then return end
+                local animator = humanoid:FindFirstChildOfClass("Animator")
+                if not animator then return end
 
                 local animId = nil
                 local animName = State.Animations.AnimationName:lower()
@@ -1566,7 +1603,7 @@ BuildTab("Animations", {
                     end
                     local anim = Instance.new("Animation")
                     anim.AnimationId = "rbxassetid://" .. tostring(animId)
-                    local track = humanoid:LoadAnimation(anim)
+                    local track = animator:LoadAnimation(anim)
                     if track then
                         track:Play()
                         State.Animations.AnimationTrack = track
@@ -1597,10 +1634,12 @@ BuildTab("Animations", {
             if not char then return end
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if not humanoid then return end
+            local animator = humanoid:FindFirstChildOfClass("Animator")
+            if not animator then return end
             if State.Animations.AnimationTrack then State.Animations.AnimationTrack:Stop() end
             local anim = Instance.new("Animation")
             anim.AnimationId = "rbxassetid://507768496"
-            local track = humanoid:LoadAnimation(anim)
+            local track = animator:LoadAnimation(anim)
             if track then track:Play(); State.Animations.AnimationTrack = track; State.Animations.LoadedAnimation = anim; State.Animations.CurrentAnimationId = 507768496 end
         end)
     end},
@@ -1610,10 +1649,12 @@ BuildTab("Animations", {
             if not char then return end
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if not humanoid then return end
+            local animator = humanoid:FindFirstChildOfClass("Animator")
+            if not animator then return end
             if State.Animations.AnimationTrack then State.Animations.AnimationTrack:Stop() end
             local anim = Instance.new("Animation")
             anim.AnimationId = "rbxassetid://507768546"
-            local track = humanoid:LoadAnimation(anim)
+            local track = animator:LoadAnimation(anim)
             if track then track:Play(); State.Animations.AnimationTrack = track; State.Animations.LoadedAnimation = anim; State.Animations.CurrentAnimationId = 507768546 end
         end)
     end},
@@ -1623,10 +1664,12 @@ BuildTab("Animations", {
             if not char then return end
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if not humanoid then return end
+            local animator = humanoid:FindFirstChildOfClass("Animator")
+            if not animator then return end
             if State.Animations.AnimationTrack then State.Animations.AnimationTrack:Stop() end
             local anim = Instance.new("Animation")
             anim.AnimationId = "rbxassetid://507768651"
-            local track = humanoid:LoadAnimation(anim)
+            local track = animator:LoadAnimation(anim)
             if track then track:Play(); State.Animations.AnimationTrack = track; State.Animations.LoadedAnimation = anim; State.Animations.CurrentAnimationId = 507768651 end
         end)
     end},
@@ -1636,18 +1679,17 @@ BuildTab("Animations", {
             if not char then return end
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if not humanoid then return end
+            local animator = humanoid:FindFirstChildOfClass("Animator")
+            if not animator then return end
             if State.Animations.AnimationTrack then State.Animations.AnimationTrack:Stop() end
             local anim = Instance.new("Animation")
             anim.AnimationId = "rbxassetid://507768661"
-            local track = humanoid:LoadAnimation(anim)
+            local track = animator:LoadAnimation(anim)
             if track then track:Play(); State.Animations.AnimationTrack = track; State.Animations.LoadedAnimation = anim; State.Animations.CurrentAnimationId = 507768661 end
         end)
     end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 14: EXTRA
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Extra", {
     {type="header", text="TRIGGER + HITBOX"},
     {type="toggle", text="Trigger + Hitbox", default=false, callback=function(v) State.Extra.TriggerHitbox=v; UpdateFeatureStatus("trigger-hitbox",v) end},
@@ -1677,9 +1719,6 @@ BuildTab("Extra", {
     {type="toggle", text="Wallbang", default=false, callback=function(v) State.Extra.Wallbang=v; UpdateFeatureStatus("wallbang",v) end},
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  TAB 15: SETTINGS
--- ═══════════════════════════════════════════════════════════════════════════════
 BuildTab("Settings", {
     {type="header", text="UI SETTINGS"},
     {type="keybind", text="UI Toggle Key", default=Enum.KeyCode.RightShift, callback=function(v) State.Settings.UIKeybind=v end},
@@ -1758,8 +1797,12 @@ end)
 -- ═══════════════════════════════════════════════════════════════════════════════
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == State.Settings.UIKeybind then
-        MainFrame.Visible = not MainFrame.Visible
-        Shadow.Visible = MainFrame.Visible
+        local isVisible = MainFrame.Visible
+        MainFrame.Visible = not isVisible
+        Shadow.Visible = not isVisible
+        UIToggleIndicator.BackgroundColor3 = not isVisible and Colors.Green or Colors.Red
+        UIToggleLabel.Text = not isVisible and "UI: ON" or "UI: OFF"
+        UIToggleLabel.TextColor3 = not isVisible and Colors.Green or Colors.Red
     end
 end)
 
@@ -1774,7 +1817,6 @@ local function GetClosestPlayer(maxDistance, hitPart)
     local myHrp = myChar:FindFirstChild("HumanoidRootPart")
     if not myHrp then return nil end
 
-    -- If Target Lock is active and valid, return ONLY the locked target
     if State.TargetLock.Enabled and State.TargetLock.SelectedPlayer then
         local lockedPlr = State.TargetLock.SelectedPlayer
         if lockedPlr and lockedPlr.Character and lockedPlr ~= LocalPlayer then
@@ -1808,7 +1850,6 @@ local function IsPlayerValidTarget(plr)
     if not plr or not plr.Character then return false end
     if plr == LocalPlayer then return false end
 
-    -- Target Lock: if enabled, only allow locked target
     if State.TargetLock.Enabled and State.TargetLock.SelectedPlayer then
         if plr ~= State.TargetLock.SelectedPlayer then
             return false
@@ -1830,9 +1871,11 @@ local function IsPlayerValidTarget(plr)
             local myHrp = myChar:FindFirstChild("HumanoidRootPart")
             local targetHrp = plr.Character:FindFirstChild("HumanoidRootPart")
             if myHrp and targetHrp then
-                local ray = Ray.new(myHrp.Position, (targetHrp.Position - myHrp.Position).Unit * (targetHrp.Position - myHrp.Position).Magnitude)
-                local hit = workspace:FindPartOnRayWithIgnoreList(ray, {myChar, plr.Character})
-                if hit then return false end
+                local rayParams = RaycastParams.new()
+                rayParams.FilterDescendantsInstances = {myChar, plr.Character}
+                rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                local result = workspace:Raycast(myHrp.Position, (targetHrp.Position - myHrp.Position), rayParams)
+                if result then return false end
             end
         end
     end
@@ -1846,7 +1889,6 @@ local SilentAimTarget = nil
 
 RunService.RenderStepped:Connect(function()
     if State.SilentAim.Enabled then
-        -- Check Target Lock Only
         if State.SilentAim.TargetLockOnly and not State.TargetLock.Enabled then
             SilentAimTarget = nil
             return
@@ -1877,7 +1919,6 @@ end)
 
 RunService.RenderStepped:Connect(function()
     if State.Aimbot.Enabled and AimbotActive then
-        -- Check Target Lock Only
         if State.Aimbot.TargetLockOnly and not State.TargetLock.Enabled then
             return
         end
@@ -1915,7 +1956,6 @@ end)
 
 RunService.RenderStepped:Connect(function()
     if State.TriggerBot.Enabled then
-        -- Check Target Lock Only
         if State.TriggerBot.TargetLockOnly and not State.TargetLock.Enabled then
             return
         end
@@ -1944,57 +1984,83 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  SPEED HACK LOGIC
+--  SPEED HACK LOGIC — OPTIMIZED (only on change)
 -- ═══════════════════════════════════════════════════════════════════════════════
+local lastSpeedValue = nil
+local lastJumpValue = nil
+
 RunService.RenderStepped:Connect(function()
-    if State.Misc.SpeedHack or State.PlayerMods.SpeedEnabled then
-        local char = LocalPlayer.Character
-        if char then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                if State.PlayerMods.SpeedEnabled then
-                    humanoid.WalkSpeed = State.PlayerMods.SpeedDefault
-                elseif State.Misc.SpeedHack then
-                    humanoid.WalkSpeed = 50
-                end
-            end
+    local char = LocalPlayer.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    if State.PlayerMods.SpeedEnabled then
+        if humanoid.WalkSpeed ~= State.PlayerMods.SpeedDefault then
+            humanoid.WalkSpeed = State.PlayerMods.SpeedDefault
+        end
+    elseif State.Misc.SpeedHack then
+        if humanoid.WalkSpeed ~= 50 then
+            humanoid.WalkSpeed = 50
         end
     end
-end)
 
--- ═══════════════════════════════════════════════════════════════════════════════
---  JUMP POWER LOGIC
--- ═══════════════════════════════════════════════════════════════════════════════
-RunService.RenderStepped:Connect(function()
     if State.PlayerMods.JumpPowerEnabled then
-        local char = LocalPlayer.Character
-        if char then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.JumpPower = State.PlayerMods.JumpPowerValue
-            end
+        if humanoid.JumpPower ~= State.PlayerMods.JumpPowerValue then
+            humanoid.JumpPower = State.PlayerMods.JumpPowerValue
         end
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  NOCLIP LOGIC
+--  NOCLIP LOGIC — OPTIMIZED (cached parts, only on toggle change)
 -- ═══════════════════════════════════════════════════════════════════════════════
+local NoClipParts = {}
+local lastNoClipState = false
+
 RunService.Stepped:Connect(function()
     if State.Misc.NoClip then
-        local char = LocalPlayer.Character
-        if char then
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
+        if not lastNoClipState then
+            -- Just enabled, cache parts
+            NoClipParts = {}
+            local char = LocalPlayer.Character
+            if char then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        table.insert(NoClipParts, part)
+                        part.CanCollide = false
+                    end
                 end
             end
+            lastNoClipState = true
+        else
+            -- Already enabled, only new parts
+            local char = LocalPlayer.Character
+            if char then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") and part.CanCollide then
+                        table.insert(NoClipParts, part)
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end
+    else
+        if lastNoClipState then
+            -- Just disabled, restore collision
+            for _, part in ipairs(NoClipParts) do
+                if part and part.Parent then
+                    pcall(function() part.CanCollide = true end)
+                end
+            end
+            NoClipParts = {}
+            lastNoClipState = false
         end
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  FLIGHT LOGIC
+--  FLIGHT LOGIC — OPTIMIZED (single connection)
 -- ═══════════════════════════════════════════════════════════════════════════════
 local FlightConnection = nil
 
@@ -2033,11 +2099,14 @@ local function StopFlight()
     end
 end
 
+local lastFlightState = false
 RunService.RenderStepped:Connect(function()
-    if State.Misc.Flight and not FlightConnection then
+    if State.Misc.Flight and not lastFlightState then
         StartFlight()
-    elseif not State.Misc.Flight and FlightConnection then
+        lastFlightState = true
+    elseif not State.Misc.Flight and lastFlightState then
         StopFlight()
+        lastFlightState = false
     end
 end)
 
@@ -2057,18 +2126,36 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  HITBOX EXPANDER LOGIC — WITH TARGET LOCK
+--  HITBOX EXPANDER LOGIC — OPTIMIZED (only on change, no continue keyword)
 -- ═══════════════════════════════════════════════════════════════════════════════
 local OriginalHitboxes = {}
+local lastHitboxSize = nil
+local lastHitboxEnabled = false
 
 RunService.RenderStepped:Connect(function()
     if State.Hitbox.Enabled then
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer and plr.Character then
-                -- Target Lock check
-                if State.Hitbox.TargetLockOnly and State.TargetLock.Enabled then
-                    if plr ~= State.TargetLock.SelectedPlayer then
-                        -- Reset this player's hitbox if it was expanded
+        if not lastHitboxEnabled or lastHitboxSize ~= State.Hitbox.Size then
+            -- Size changed or just enabled, update all
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer and plr.Character then
+                    local shouldSkip = false
+                    if State.Hitbox.TargetLockOnly and State.TargetLock.Enabled then
+                        if plr ~= State.TargetLock.SelectedPlayer then
+                            shouldSkip = true
+                        end
+                    end
+
+                    if not shouldSkip then
+                        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            if not OriginalHitboxes[plr] then
+                                OriginalHitboxes[plr] = hrp.Size
+                            end
+                            hrp.Size = Vector3.new(State.Hitbox.Size, State.Hitbox.Size, State.Hitbox.Size)
+                            hrp.Transparency = State.Hitbox.Visualize and State.Hitbox.Transparency or 1
+                        end
+                    else
+                        -- Reset if was expanded
                         if OriginalHitboxes[plr] and plr.Character then
                             local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
                             if hrp then
@@ -2076,36 +2163,32 @@ RunService.RenderStepped:Connect(function()
                                 hrp.Transparency = 1
                             end
                         end
-                        continue
                     end
-                end
-
-                local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    if not OriginalHitboxes[plr] then
-                        OriginalHitboxes[plr] = hrp.Size
-                    end
-                    hrp.Size = Vector3.new(State.Hitbox.Size, State.Hitbox.Size, State.Hitbox.Size)
-                    hrp.Transparency = State.Hitbox.Visualize and State.Hitbox.Transparency or 1
                 end
             end
+            lastHitboxSize = State.Hitbox.Size
+            lastHitboxEnabled = true
         end
     else
-        for plr, originalSize in pairs(OriginalHitboxes) do
-            if plr.Character then
-                local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    hrp.Size = originalSize
-                    hrp.Transparency = 1
+        if lastHitboxEnabled then
+            for plr, originalSize in pairs(OriginalHitboxes) do
+                if plr.Character then
+                    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        hrp.Size = originalSize
+                        hrp.Transparency = 1
+                    end
                 end
             end
+            OriginalHitboxes = {}
+            lastHitboxEnabled = false
+            lastHitboxSize = nil
         end
-        OriginalHitboxes = {}
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  ESP LOGIC
+--  ESP LOGIC — OPTIMIZED
 -- ═══════════════════════════════════════════════════════════════════════════════
 local ESPObjects = {}
 
@@ -2268,9 +2351,9 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  ANTI DETECTION LOGIC
+--  ANTI DETECTION LOGIC — SAFE CHECK
 -- ═══════════════════════════════════════════════════════════════════════════════
-if State.AntiDetection.AntiKick then
+if State.AntiDetection.AntiKick and Executor.HasGetRawMetatable and Executor.HasNewCClosure and Executor.HasGetNamecallMethod and Executor.HasSetReadonly then
     pcall(function()
         local mt = getrawmetatable(game)
         local oldNamecall = mt.__namecall
@@ -2449,13 +2532,12 @@ LocalPlayer.CharacterAdded:Connect(function(char)
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
---  EXTRA TAB — TRIGGER + HITBOX LOGIC — WITH TARGET LOCK
+--  EXTRA TAB — TRIGGER + HITBOX LOGIC
 -- ═══════════════════════════════════════════════════════════════════════════════
 local lastExtraTrigger = 0
 
 RunService.RenderStepped:Connect(function()
     if State.Extra.TriggerHitbox then
-        -- Check Target Lock Only
         if State.Extra.TargetLockOnly and not State.TargetLock.Enabled then
             return
         end
@@ -2534,7 +2616,7 @@ RunService.RenderStepped:Connect(function()
                     if backpack then
                         for _, item in ipairs(backpack:GetChildren()) do
                             if item.Name:lower():find("armor") or item.Name:lower():find("vest") then
-                                humanoid:EquipTool(item)
+                                item.Parent = char
                                 break
                             end
                         end
@@ -2549,35 +2631,74 @@ end)
 --  EXTRA TAB — NO RECOIL / NO SPREAD LOGIC
 -- ═══════════════════════════════════════════════════════════════════════════════
 local originalRecoil = {}
+local lastNoRecoilState = false
+
 RunService.RenderStepped:Connect(function()
     if State.Extra.NoRecoil or State.Extra.NoSpread then
-        pcall(function()
-            local char = LocalPlayer.Character
-            if char then
-                local tool = char:FindFirstChildOfClass("Tool")
-                if tool then
-                    for _, obj in ipairs(tool:GetDescendants()) do
-                        if State.Extra.NoRecoil and (obj.Name:lower():find("recoil") or obj.Name:lower():find("kick")) then
-                            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                                if not originalRecoil[obj] then originalRecoil[obj] = obj.Value end
-                                obj.Value = 0
+        if not lastNoRecoilState then
+            pcall(function()
+                local char = LocalPlayer.Character
+                if char then
+                    local tool = char:FindFirstChildOfClass("Tool")
+                    if tool then
+                        for _, obj in ipairs(tool:GetDescendants()) do
+                            if State.Extra.NoRecoil and (obj.Name:lower():find("recoil") or obj.Name:lower():find("kick")) then
+                                if obj:IsA("NumberValue") or obj:IsA("IntValue") then
+                                    if not originalRecoil[obj] then originalRecoil[obj] = obj.Value end
+                                    obj.Value = 0
+                                end
                             end
-                        end
-                        if State.Extra.NoSpread and (obj.Name:lower():find("spread") or obj.Name:lower():find("accuracy")) then
-                            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                                if not originalRecoil[obj] then originalRecoil[obj] = obj.Value end
-                                obj.Value = 0
+                            if State.Extra.NoSpread and (obj.Name:lower():find("spread") or obj.Name:lower():find("accuracy")) then
+                                if obj:IsA("NumberValue") or obj:IsA("IntValue") then
+                                    if not originalRecoil[obj] then originalRecoil[obj] = obj.Value end
+                                    obj.Value = 0
+                                end
                             end
                         end
                     end
                 end
-            end
-        end)
-    else
-        for obj, val in pairs(originalRecoil) do
-            pcall(function() obj.Value = val end)
+            end)
+            lastNoRecoilState = true
         end
-        originalRecoil = {}
+    else
+        if lastNoRecoilState then
+            for obj, val in pairs(originalRecoil) do
+                pcall(function() obj.Value = val end)
+            end
+            originalRecoil = {}
+            lastNoRecoilState = false
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+--  TARGET LOCK ESP RENDER
+-- ═══════════════════════════════════════════════════════════════════════════════
+RunService.RenderStepped:Connect(function()
+    if State.TargetLock.Enabled and State.TargetLock.SelectedPlayer and State.TargetLock.SelectedPlayer.Character then
+        local plr = State.TargetLock.SelectedPlayer
+        local char = plr.Character
+        local head = char:FindFirstChild("Head")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+
+        if head and hrp and Executor.HasDrawing then
+            CreateTargetESP(plr)
+            local espData = TargetESPObjects[plr]
+            local pos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1.2, 0))
+
+            if onScreen then
+                espData.Name.Visible = true
+                espData.Name.Position = Vector2.new(pos.X, pos.Y)
+                espData.Name.Text = "@" .. plr.Name .. " [LOCKED]"
+                espData.Name.Color = Colors.BloodRed
+            else
+                espData.Name.Visible = false
+            end
+        end
+    else
+        for plr, _ in pairs(TargetESPObjects) do
+            RemoveTargetESP(plr)
+        end
     end
 end)
 
@@ -2601,4 +2722,3 @@ end)
 if not success then
     warn("[ETCHMO.HUB] Error: " .. tostring(err))
 end
-
